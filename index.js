@@ -9,6 +9,7 @@ var validator = require('validator')
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC 
 var cors = require('cors');
+const { json } = require('express');
 app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
 
 // http://expressjs.com/en/starter/static-files.html
@@ -30,32 +31,20 @@ app.get('/api', (req, res) => {
 app.get("/api/:date", function (req, res) {
   // We need to validate if the input is a valid date, be it in milliseconds format or in mm-dd-yyyy
   let inputDate = req.params.date;
-  
-  // Use this regex to validate the date entered. It does not validate time, only dates in the formats
-  // mm-dd-yyyy, dd-mm-yyyy, mon-dd-yyyy, dd-mon-yyyy, where mon represents a 3-lettered month.
-  let dateRegex = new RegExp([
-    /[0-9]{1,2}(\s|-)[0-9]{1,2}(\s|-)[0-9]{4}|/,
-    /[0-9]{4}(\s|-)[0-9]{1,2}(\s|-)[0-9]{1,2}|/,
-    /([Jan|Feb|Mar|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec]{3}(\s|-)[0-9]{1,2}(\s|-)[0-9]{4})|/,
-    /([0-9]{1,2}(\s|-)[Jan|Feb|Mar|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec]{3}(\s|-)[0-9]{4})|/,
-    /(\s|:)([0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2})/gm
-  ].map(r => r.source).join(''));
 
-  let integerRegex = /([\d]{0,}$)/
+  let integerRegex = /(^[\d]{0,}$)/  
 
-  let outputDate;
-  if(inputDate.match(dateRegex)){
-    outputDate = new Date(inputDate);
+  // validate date
+  let outputDate = new Date( Date.parse(inputDate) )
+
+  if( !Number.isNaN(outputDate.valueOf()) ) {
     res.json({unix: outputDate.valueOf(), utc: outputDate.toUTCString()})
   }
-  else if(inputDate.match(integerRegex)) {// create a date with the integer provided and treat it as a unix date value
-    outputDate = new Date(Number.parseInt(inputDate)); // we need to parse the number out of the string for it to work with the Date constructor
-    console.log(outputDate)
-    res.json({unix: outputDate.valueOf(), utc: outputDate.toUTCString()})
+  else if(inputDate.match(integerRegex)) { // A separate case had to be created for integer input strings because Date() was not handling this case.
+    res.json({unix: outputDate.setTime(inputDate), utc: outputDate.toUTCString()})
   }
-  else {
-    res.json({error: 'Invalid Date'});
-  }
+  else
+    res.json({error: 'Invalid Date'})
 });
 
 // listen for requests :)
