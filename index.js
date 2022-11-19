@@ -32,12 +32,12 @@ app.get("/api/:date", function (req, res) {
   // We need to validate if the input is a valid date, be it in milliseconds format or in mm-dd-yyyy
   let inputDate = req.params.date;
 
-  let integerRegex = /(^[\d]{0,}$)/  
+  let integerRegex = /(^[\d]{0,}$)/  // This regex makes sure that we are parsing input that does not contain non-numeric characters anywhere.
 
   // validate date
   let outputDate = new Date( Date.parse(inputDate) )
 
-  if( !Number.isNaN(outputDate.valueOf()) ) {
+  if( !Number.isNaN(outputDate.valueOf()) ) { // We need to find out if the input can be parsed as a date value
     res.json({unix: outputDate.valueOf(), utc: outputDate.toUTCString()})
   }
   else if(inputDate.match(integerRegex)) { // A separate case had to be created for integer input strings because Date() was not handling this case.
