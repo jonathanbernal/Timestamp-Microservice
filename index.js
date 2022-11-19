@@ -47,7 +47,9 @@ app.get("/api/:date", function (req, res) {
     res.json({error: 'Invalid Date'})
 });
 
-// listen for requests :)
+// listen for requests. I changed the port to 8001 for convenience.
+// The boilerplate implementation was being run on a random port. For development purposes, I found this inconvenient.
+// If you want to run it on a randomized port, remove PORT and uncomment the lines of text after it.
 let PORT = 8001
 var listener = app.listen(PORT /*process.env.PORT*/, function () {
   console.log('Your app is listening on port ' + PORT /*listener.address().port*/);
