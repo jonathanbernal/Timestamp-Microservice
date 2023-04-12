@@ -27,9 +27,8 @@ app.get('/api', (req, res) => {
 app.get('/api/:date', (req, res) => {
   const parsedUnixValue = parseInt(req.params.date);
   const parsedDate = new Date(req.params.date);
-  console.log(parsedDate);
 
-  if(typeof(parsedUnixValue) === 'number' && parsedDate.toString() === 'Invalid Date') {
+  if(!Number.isNaN(parsedUnixValue) && parsedDate.toString() === 'Invalid Date') {
     res.json({unix: parsedUnixValue, utc: new Date(parsedUnixValue).toUTCString()})
   } else if (parsedDate.toString() !== 'Invalid Date') {
     res.json({unix: parsedDate.valueOf(), utc: parsedDate.toUTCString()});
